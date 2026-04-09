@@ -70,8 +70,12 @@ export default function OrderStatus() {
                 <div className="max-w-7xl mx-auto px-6 py-10">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="bg-blue-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Active Shipment</span>
+                             <div className="flex items-center gap-3 mb-2">
+                                 {order.is_preorder ? (
+                                     <span className="bg-[#2ecc71] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Pre-Order Reservation</span>
+                                 ) : (
+                                     <span className="bg-blue-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Active Shipment</span>
+                                 )}
                                 <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">SF-{order.id.toString().padStart(4, '0')}</span>
                             </div>
                             <h1 className="text-4xl font-black text-gray-900 tracking-tighter">Track Your Fresh Delivery</h1>
@@ -192,8 +196,14 @@ export default function OrderStatus() {
                             <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex items-center gap-6">
                                 <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-2xl">📅</div>
                                 <div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Estimated Arrival</p>
-                                    <p className="text-xl font-black text-gray-900 tracking-tight">Today, 5:00 PM</p>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                                        {order.is_preorder ? "Estimated Harvest" : "Estimated Arrival"}
+                                    </p>
+                                    <p className="text-xl font-black text-gray-900 tracking-tight">
+                                        {order.is_preorder 
+                                            ? (product.harvest_date ? new Date(product.harvest_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'TBA')
+                                            : "Today, 5:00 PM"}
+                                    </p>
                                 </div>
                             </div>
                             <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex items-center gap-6">

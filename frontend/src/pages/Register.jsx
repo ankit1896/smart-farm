@@ -7,6 +7,7 @@ import { useState } from "react";
 
 export default function Register() {
 
+    const [role, setRole] = useState("customer"); // "customer" or "farmer"
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -41,22 +42,26 @@ export default function Register() {
                     confirm_password: confirmPassword,
                     first_name: firstName,
                     last_name: lastName,
+                    is_farmer: role === "farmer"
                 }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                alert(data.message);
-
-                // optional: clear form
-                setName("");
-                setEmail("");
-                setPassword("");
-                setConfirmPassword("");
-
+                alert(data.message + ". Redirecting to login...");
+                navigate("/", { state: { selectedRole: role } });
             } else {
-                alert(JSON.stringify(data));
+                let errorMsg = "Registration failed. ";
+                if (data.username) {
+                    errorMsg += "An account with this email already exists. ";
+                } else {
+                    // Collect all other field errors
+                    Object.keys(data).forEach(key => {
+                        errorMsg += `${key}: ${data[key][0]} `;
+                    });
+                }
+                alert(errorMsg);
             }
         } catch (error) {
             console.error(error);
@@ -65,30 +70,42 @@ export default function Register() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-6">
-
-            {/* Main Container */}
             <div className="flex w-full max-w-6xl items-center justify-between gap-10">
-
-                {/* Left Image */}
                 <div className="hidden md:block w-1/2">
                     <img src={loginImg} alt="farm" className="w-full" />
                 </div>
 
-                {/* Right Register Card */}
                 <div className="w-full md:w-1/2 flex justify-center">
-                    <div className="bg-green-100 p-8 rounded-xl w-full max-w-md shadow-md">
-
-                        {/* Logo */}
-                        <h2 className="text-2xl font-bold text-blue-600 mb-2">
-                            🌱 Smart Farm
+                    <div className="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl shadow-blue-900/5 border border-slate-100">
+                        <h2 className="text-2xl font-black text-blue-600 mb-6 flex items-center gap-2">
+                            🌱 <span className="tracking-tight">SmartFarm</span>
                         </h2>
 
-                        {/* Heading */}
-                        <h3 className="text-xl font-semibold mb-1">
-                            Welcome To Smartfarm
+                        {/* Role Selector */}
+                        <div className="flex p-1 bg-slate-100 rounded-2xl mb-8">
+                            <button 
+                                onClick={() => setRole("customer")}
+                                className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                    role === "customer" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                                }`}
+                            >
+                                Customer
+                            </button>
+                            <button 
+                                onClick={() => setRole("farmer")}
+                                className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                    role === "farmer" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                                }`}
+                            >
+                                Farmer
+                            </button>
+                        </div>
+
+                        <h3 className="text-2xl font-black text-slate-900 mb-1 tracking-tight">
+                            {role === "customer" ? "Create Account" : "Join as Farmer"}
                         </h3>
-                        <p className="text-gray-600 mb-6 text-sm">
-                            Create New Account
+                        <p className="text-slate-500 mb-8 font-medium">
+                            {role === "customer" ? "Join our community of fresh food lovers" : "Start selling your fresh produce today"}
                         </p>
 
                         {/* Full Name */}
@@ -161,7 +178,7 @@ export default function Register() {
                     </div>
                 </div>
             </div>
-            <Footer />
+
         </div>
     );
 }

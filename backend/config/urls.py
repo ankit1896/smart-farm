@@ -22,7 +22,8 @@ from farm.views import (
     ProductListView, ProductDetailView, FarmerListView, FarmerDetailView,
     CategoryListView, RegisterView, home, ProtectedView, 
     MyTokenObtainPairView, OrderListCreateView, OrderDetailView, AddressViewSet, UserProfileView,
-    GoogleLogin
+    GoogleLogin, FarmerDashboardView, FarmerOrderListView, FarmerProductListView,
+    FarmerProfileUpdateView
 )
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -46,9 +47,15 @@ urlpatterns = [
     path('api/orders/<int:id>/', OrderDetailView.as_view(), name='order-detail'),
     path('api/profile/', UserProfileView.as_view(), name='user-profile'),
     path('api/social/login/google/', GoogleLogin.as_view(), name='google_login'),
+    path('api/farmer/dashboard/', FarmerDashboardView.as_view(), name='farmer-dashboard'),
+    path('api/farmer/orders/', FarmerOrderListView.as_view(), name='farmer-orders'),
+    path('api/farmer/products/', FarmerProductListView.as_view(), name='farmer-products'),
+    path('api/farmer/profile/update/', FarmerProfileUpdateView.as_view(), name='farmer-profile-update'),
     path('api/dj-rest-auth/', include('dj_rest_auth.urls')),
     path('api/', include(router.urls)),
 ]
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

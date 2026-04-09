@@ -14,6 +14,11 @@ import OrderStatus from "./pages/OrderStatus";
 import FarmerDetail from "./pages/FarmerDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import FarmerDashboard from "./pages/FarmerDashboard";
+import FarmerOrders from "./pages/FarmerOrders";
+import FarmerProducts from "./pages/FarmerProducts";
+import FarmerProfile from "./pages/FarmerProfile";
+import FarmerSettings from "./pages/FarmerSettings";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Force reload after fixing syntax error v2
@@ -33,7 +38,7 @@ function App() {
             <Route
               path="/home"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <Home />
                 </ProtectedRoute>
               }
@@ -41,7 +46,7 @@ function App() {
             <Route
               path="/product/:id"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <ProductDetail />
                 </ProtectedRoute>
               }
@@ -49,7 +54,7 @@ function App() {
             <Route
               path="/cart"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <Cart />
                 </ProtectedRoute>
               }
@@ -57,7 +62,7 @@ function App() {
             <Route
               path="/checkout"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <Checkout />
                 </ProtectedRoute>
               }
@@ -65,7 +70,7 @@ function App() {
             <Route
               path="/pre-order"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <PreOrder />
                 </ProtectedRoute>
               }
@@ -73,7 +78,7 @@ function App() {
             <Route
               path="/order-success"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <OrderSuccess />
                 </ProtectedRoute>
               }
@@ -81,7 +86,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -89,7 +94,7 @@ function App() {
             <Route
               path="/order-status/:orderId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <OrderStatus />
                 </ProtectedRoute>
               }
@@ -97,8 +102,48 @@ function App() {
             <Route
               path="/farmer/:id"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowRole="customer">
                   <FarmerDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/farmer/dashboard"
+              element={
+                <ProtectedRoute allowRole="farmer">
+                  <FarmerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/farmer/orders"
+              element={
+                <ProtectedRoute allowRole="farmer">
+                  <FarmerOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/farmer/products"
+              element={
+                <ProtectedRoute allowRole="farmer">
+                  <FarmerProducts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/farmer/profile"
+              element={
+                <ProtectedRoute allowRole="farmer">
+                  <FarmerProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/farmer/settings"
+              element={
+                <ProtectedRoute allowRole="farmer">
+                  <FarmerSettings />
                 </ProtectedRoute>
               }
             />

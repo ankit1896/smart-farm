@@ -23,13 +23,13 @@ export default function Checkout() {
     const handlePlaceOrder = async () => {
         setIsSubmitting(true);
         const token = localStorage.getItem("access_token");
-        
+
         try {
             const orderData = {
                 total_amount: finalTotal,
                 shipping_address: selectedAddress?.id,
-                address: deliveryAddress, 
-                is_preorder: deliveryOption.includes('Pre Order'),
+                address: deliveryAddress,
+                is_preorder: selectedItems.some(item => item.is_preorder) || deliveryOption.includes('Pre Order'),
                 items: selectedItems.map(item => ({
                     product: item.id,
                     quantity: item.quantity,
@@ -49,8 +49,13 @@ export default function Checkout() {
 
             if (response.ok) {
                 const data = await response.json();
-                clearCart(); 
-                navigate('/order-success', { state: { orderId: data.id } });
+                clearCart();
+                navigate('/order-success', {
+                    state: {
+                        orderId: data.id,
+                        is_preorder: orderData.is_preorder
+                    }
+                });
             } else {
                 const errorData = await response.json();
                 console.error("Order failed:", errorData);
@@ -78,11 +83,11 @@ export default function Checkout() {
                     <div className="lg:w-2/3 space-y-10">
 
                         {/* Delivery Address Section */}
-                        <DeliveryAddress 
+                        <DeliveryAddress
                             onAddressChange={(str, obj) => {
                                 setDeliveryAddress(str);
                                 setSelectedAddress(obj);
-                            }} 
+                            }}
                             onConfirm={(status) => setIsAddressConfirmed(status)}
                             isConfirmed={isAddressConfirmed}
                         />
@@ -282,7 +287,7 @@ export default function Checkout() {
                                 </div>
                             </div>
 
-                            <button 
+                            <button
                                 onClick={handlePlaceOrder}
                                 disabled={isSubmitting || !isAddressConfirmed}
                                 className={`w-full ${isSubmitting || !isAddressConfirmed ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1a73e8] hover:bg-blue-700'} transition-colors text-white py-3.5 rounded-md font-semibold text-[15px] mt-2 shadow-sm flex items-center justify-center gap-2`}

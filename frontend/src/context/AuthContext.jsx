@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
                          (decoded.fullname ? decoded.fullname.trim().split(' ')[0] : null) || 
                          (decoded.username && decoded.username.trim()) || 
                          (decoded.email ? decoded.email.split('@')[0] : "User");
-            setUser({ ...decoded, displayName: name });
+            setUser({ ...decoded, displayName: name, selectedRole: decoded.selectedRole || "customer" });
         } catch (error) {
             console.warn("Invalid token format, but token exists. Using fallback.");
             setUser({ displayName: "User" });
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
                                  (parsedUser.fullname ? parsedUser.fullname.trim().split(' ')[0] : null) || 
                                  (parsedUser.username && parsedUser.username.trim()) || 
                                  (parsedUser.email ? parsedUser.email.split('@')[0] : "User");
-                    setUser({ ...parsedUser, displayName: name });
+                    setUser({ ...parsedUser, displayName: name, selectedRole: parsedUser.selectedRole || "customer" });
                 } catch (e) {
                     decodeAndSetUser(token);
                 }
@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
                          (userData.fullname ? userData.fullname.trim().split(' ')[0] : null) || 
                          (userData.username && userData.username.trim()) || 
                          (userData.email ? userData.email.split('@')[0] : "User");
-            setUser({ ...userData, displayName: name });
+            setUser({ ...userData, displayName: name, selectedRole: userData.role || userData.selectedRole || "customer" });
         } else {
             decodeAndSetUser(newToken);
         }

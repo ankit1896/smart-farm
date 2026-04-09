@@ -11,6 +11,7 @@ class Category(models.Model):
         return self.name
 
 class Farmer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='farmer_profile', null=True, blank=True)
     name = models.CharField(max_length=255)
     farm_name = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255)
@@ -32,6 +33,7 @@ class Product(models.Model):
     is_organic = models.BooleanField(default=True)
     rating = models.FloatField(default=0.0)
     is_preorder = models.BooleanField(default=False)
+    harvest_date = models.DateField(null=True, blank=True)
     image_url = models.ImageField(upload_to='products/', blank=True, null=True)
 
     def __str__(self):
@@ -69,8 +71,13 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.product.name if self.product else 'Deleted Product'}"
 
 class Profile(models.Model):
+    ROLE_CHOICES = (
+        ('customer', 'Customer'),
+        ('farmer', 'Farmer'),
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone = models.CharField(max_length=15, blank=True, null=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
     
     def __str__(self):
         return f"Profile of {self.user.username}"
@@ -99,6 +106,20 @@ class Address(models.Model):
 
     def __str__(self):
         return f"{self.address_type} address for {self.user.username} ({self.city})"
+
+class MarketPrice(models.Model):
+    commodity = models.CharField(max_length=100)
+    market = models.CharField(max_length=100)
+    district = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    min_price = models.DecimalField(max_digits=10, decimal_places=2)
+    max_price = models.DecimalField(max_digits=10, decimal_places=2)
+    modal_price = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.commodity} - {self.market} ({self.date})"
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

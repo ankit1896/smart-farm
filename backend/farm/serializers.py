@@ -47,7 +47,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = ['id', 'category', 'farmer', 'name', 'price', 'discount_price', 'weight', 'is_organic', 'rating', 'is_preorder', 'image_url']
+        fields = ['id', 'category', 'farmer', 'name', 'price', 'discount_price', 'weight', 'is_organic', 'rating', 'is_preorder', 'harvest_date', 'image_url']
 
     def get_image_url(self, obj):
         if obj.image_url:
@@ -59,19 +59,21 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class RegisteSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
+    is_farmer = serializers.BooleanField(write_only=True, required=False, default=False)
+
     class Meta:
         model = User
-    
-        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'confirm_password']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'confirm_password', 'is_farmer']
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
             raise serializers.ValidationError({'confirm_password': 'Passwords do not match'})
         return data
-    
+
     def create(self, validated_data):
-        validated_data.pop('confirm_password')
-    
+        confirm_password = validated_data.pop('confirm_password')
+        is_farmer = validated_data.pop('is_farmer', False)
+
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -79,6 +81,23 @@ class RegisteSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name']
         )
+
+        # Create Profile with role
+        Profile.objects.create(
+            user=user, 
+            role='farmer' if is_farmer else 'customer'
+        )
+
+        # Create Farmer if flag is true
+        if is_farmer:
+            Farmer.objects.create(
+                user=user,
+                name=f"{user.first_name} {user.last_name}".strip() or user.username,
+                farm_name=f"{user.first_name}'s Farm",
+                location="Update Location",
+                seller_since_yrs=0
+            )
+
         return user
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -146,5 +165,3 @@ class ProfileSerializer(serializers.ModelSerializer):
             'pending_orders': pending_orders,
             'wishlist_count': 0
         }
-
-

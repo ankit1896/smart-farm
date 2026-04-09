@@ -47,8 +47,8 @@ export default function Products() {
                     {displayedProducts.map((item) => {
                         const isInCart = cart.some(cartItem => cartItem.id === item.id);
                         return (
-                            <div 
-                                key={item.id} 
+                            <div
+                                key={item.id}
                                 className="bg-white group rounded-[2.5rem] p-5 border border-gray-100 hover:shadow-2xl hover:shadow-blue-900/5 transition-all duration-500 cursor-pointer flex flex-col h-full"
                                 onClick={() => navigate('/product/' + item.id)}
                             >
@@ -71,7 +71,7 @@ export default function Products() {
                                     <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-4">₹{item.price} • {item.weight}</p>
 
                                     <div className="mt-auto grid grid-cols-2 gap-3" onClick={(e) => e.stopPropagation()}>
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 if (!isInCart) addToCart(item, 1, item.weight);
                                                 navigate('/checkout');
@@ -81,7 +81,7 @@ export default function Products() {
                                             <Clock size={14} />
                                             Pre Order
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 if (!isInCart) addToCart(item, 1, item.weight);
                                                 else navigate('/cart');
@@ -98,7 +98,7 @@ export default function Products() {
                     })}
                     {displayedProducts.length === 0 && (
                         <div className="col-span-full py-20 text-center bg-gray-50 rounded-[3rem] border border-dashed border-gray-200">
-                             <p className="text-gray-400 font-black text-[11px] uppercase tracking-[0.3em]">No products available right now.</p>
+                            <p className="text-gray-400 font-black text-[11px] uppercase tracking-[0.3em]">No products available right now.</p>
                         </div>
                     )}
                 </div>

@@ -130,7 +130,7 @@ export default function ProductDetail() {
                                     <ShoppingCart size={18} /> Add to cart
                                 </button>
                             )}
-                            <button 
+                            <button
                                 onClick={() => {
                                     if (!isInCart) addToCart(product, quantity, weight);
                                     navigate('/checkout');

@@ -12,7 +12,7 @@ export default function PreOrder() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/api/products/")
+        fetch("http://127.0.0.1:8000/api/products/?is_preorder=true")
             .then(res => res.json())
             .then(data => {
                 setProducts(data);
@@ -34,11 +34,11 @@ export default function PreOrder() {
                 <p className="text-sm md:text-lg font-medium opacity-90 max-w-lg leading-relaxed">
                     Reserve the freshest harvest before anyone else. Straight from the soil to your table.
                 </p>
-                <div className="mt-6 flex gap-2">
+                {/* <div className="mt-6 flex gap-2">
                     <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-white/30 flex items-center gap-1.5">
                         <Clock size={12} /> Next Harvest: Tomorrow
                     </span>
-                </div>
+                </div> */}
             </div>
 
             <div className="max-w-7xl mx-auto px-4 md:px-6 py-10">
@@ -76,40 +76,49 @@ export default function PreOrder() {
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         alt={item.name}
                                     />
-                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-green-600 text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm border border-green-50 flex items-center gap-1">
-                                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> HIGH DEMAND
+                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-blue-600 text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm border border-blue-50 flex items-center gap-1">
+                                        <Clock size={10} /> NEXT HARVEST
                                     </div>
-                                    {item.is_organic && (
-                                        <div className="absolute top-4 right-4 bg-green-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">
-                                            ORGANIC
-                                        </div>
-                                    )}
+                                    <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-md px-3 py-2 rounded-xl border border-white/20">
+                                        <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none mb-1">Est. Harvest Date</p>
+                                        <p className="text-xs font-black text-green-400">
+                                            {item.harvest_date ? new Date(item.harvest_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'TBA'}
+                                        </p>
+                                    </div>
                                 </div>
                                 <div className="p-4 md:p-6 flex-1 flex flex-col">
                                     <div className="flex justify-between items-start mb-2">
-                                        <h3 className="font-bold text-gray-800 text-[15px] md:text-lg group-hover:text-green-600 transition-colors">{item.name}</h3>
+                                        <h3 className="font-bold text-gray-800 text-[15px] md:text-lg group-hover:text-green-600 transition-colors tracking-tight">{item.name}</h3>
                                         <div className="flex items-center gap-0.5 text-yellow-400">
                                             <Star size={14} fill="currentColor" /> <span className="text-xs font-bold text-gray-700 ml-1">{item.rating}</span>
                                         </div>
                                     </div>
-                                    <p className="text-gray-500 text-xs md:text-sm mb-4 font-medium">{item.weight} • Harvested in {item.farmer?.location || 'Sass Valley'}</p>
 
-                                    <div className="mt-auto pt-4 flex flex-col gap-3">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="flex -space-x-2">
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} className="w-5 h-5 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
+                                                    <img src={`https://i.pravatar.cc/100?u=${item.id}${i}`} alt="user" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">12+ Reserved</p>
+                                    </div>
+
+                                    <div className="mt-auto pt-2 flex flex-col gap-3">
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-xl md:text-2xl font-black text-gray-900">₹{item.discount_price || item.price}</span>
-                                            {item.discount_price && (
-                                                <span className="text-xs md:text-sm text-gray-400 line-through font-medium">₹{item.price}</span>
-                                            )}
+                                            <span className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter">₹{item.discount_price || item.price}</span>
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter self-end mb-1">/ {item.weight}</span>
                                         </div>
                                         <button
-                                            onClick={(e) => { 
-                                                e.stopPropagation(); 
-                                                addToCart(item, 1);
-                                                navigate('/checkout'); 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                addToCart({ ...item, is_preorder: true }, 1);
+                                                navigate('/checkout');
                                             }}
-                                            className="w-full bg-[#1a73e8] hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-100 flex items-center justify-center gap-2 group/btn"
+                                            className="w-full bg-[#1a73e8] hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-100 flex items-center justify-center gap-2 group/btn active:scale-95 duration-200"
                                         >
-                                            RESERVE NOW <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                                            RESERVE SPOT <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                                         </button>
                                     </div>
                                 </div>

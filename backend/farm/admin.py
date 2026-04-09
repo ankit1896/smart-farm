@@ -12,8 +12,8 @@ class FarmerAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'weight', 'is_organic', 'is_preorder')
-    list_filter = ('category', 'is_organic', 'is_preorder')
+    list_display = ('name', 'category', 'price', 'weight', 'is_organic', 'is_preorder', 'harvest_date')
+    list_filter = ('category', 'is_organic', 'is_preorder', 'harvest_date')
     search_fields = ('name',)
 
 class OrderItemInline(admin.TabularInline):

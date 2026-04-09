@@ -27,20 +27,29 @@ export default function OrderSuccess() {
 
                     {/* Text Content */}
                     <div className="space-y-3">
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Order Placed Successfully!</h1>
+                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                            {location.state?.is_preorder ? "Reservation Confirmed!" : "Order Placed Successfully!"}
+                        </h1>
                         <p className="text-gray-500 font-medium leading-relaxed">
-                            Thank you for shopping with us. Your order <span className="text-blue-600 font-bold">{orderId}</span> has been confirmed and is being prepared for delivery.
+                            {location.state?.is_preorder 
+                                ? <>Thank you for your reservation! Your spot for the next harvest <span className="text-blue-600 font-bold">{orderId}</span> has been secured.</>
+                                : <>Thank you for shopping with us. Your order <span className="text-blue-600 font-bold">{orderId}</span> has been confirmed and is being prepared for delivery.</>
+                            }
                         </p>
                     </div>
 
                     {/* Delivery Info Box */}
                     <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 text-left flex items-start gap-4">
                         <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-50">
-                            <Package className="text-[#1a73e8]" size={24} />
+                            {location.state?.is_preorder ? <List className="text-[#2ecc71]" size={24} /> : <Package className="text-[#1a73e8]" size={24} />}
                         </div>
                         <div>
-                            <h4 className="text-sm font-bold text-gray-900 mb-1">Estimated Delivery</h4>
-                            <p className="text-[13px] text-gray-600 font-medium">Tomorrow, 10:00 AM - 2:00 PM</p>
+                            <h4 className="text-sm font-bold text-gray-900 mb-1">
+                                {location.state?.is_preorder ? "Harvest Timeline" : "Estimated Delivery"}
+                            </h4>
+                            <p className="text-[13px] text-gray-600 font-medium">
+                                {location.state?.is_preorder ? "Check Order Status for updates" : "Tomorrow, 10:00 AM - 2:00 PM"}
+                            </p>
                         </div>
                     </div>
 

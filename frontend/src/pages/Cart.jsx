@@ -16,9 +16,9 @@ export default function Cart() {
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 font-sans">
-                
+
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-                    
+
                     {/* Left: Cart Items List */}
                     <div className="lg:w-2/3 border border-gray-200 rounded-lg p-2 md:p-6">
                         {cart.length === 0 ? (
@@ -28,7 +28,7 @@ export default function Cart() {
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-800">Your cart is empty</h3>
                                 <p className="text-gray-500 max-w-xs mx-auto">Looks like you haven't added anything to your cart yet.</p>
-                                <button 
+                                <button
                                     onClick={() => navigate('/home')}
                                     className="bg-[#1a73e8] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition"
                                 >
@@ -38,25 +38,25 @@ export default function Cart() {
                         ) : (
                             cart.map((item, index) => (
                                 <div key={item.cartItemId} className={`flex flex-col md:flex-row items-center md:items-start justify-between gap-6 py-6 px-4 md:px-2 ${index !== cart.length - 1 ? 'border-b border-gray-200' : ''}`}>
-                                    
+
                                     {/* Checkbox and Image/Title */}
                                     <div className="flex items-center gap-4 w-full md:w-[40%]">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={item.selected} 
+                                        <input
+                                            type="checkbox"
+                                            checked={item.selected}
                                             onChange={() => toggleSelection(item.cartItemId)}
                                             className="w-5 h-5 accent-green-600 rounded cursor-pointer"
                                         />
                                         <div className="flex items-center gap-4">
-                                            <img 
-                                                src={item.image_url || "https://via.placeholder.com/150"} 
-                                                className={`w-24 h-20 rounded-md object-cover shadow-sm border border-gray-100 transition-opacity ${item.selected ? 'opacity-100' : 'opacity-50'}`} 
-                                                alt={item.name} 
+                                            <img
+                                                src={item.image_url || "https://via.placeholder.com/150"}
+                                                className={`w-24 h-20 rounded-md object-cover shadow-sm border border-gray-100 transition-opacity ${item.selected ? 'opacity-100' : 'opacity-50'}`}
+                                                alt={item.name}
                                             />
                                             <div className="flex flex-col">
                                                 <h3 className={`font-bold text-[16px] leading-tight mb-1 transition-colors ${item.selected ? 'text-gray-900' : 'text-gray-400'}`}>{item.name}</h3>
                                                 <p className="text-[11px] text-gray-400 font-medium mb-3 text-left">Sold by: {item.farmer?.name || 'Local Farmer'}</p>
-                                                
+
                                                 <div className="flex flex-col items-start gap-0.5">
                                                     <p className={`text-[12px] font-bold transition-colors ${item.selected ? 'text-gray-700' : 'text-gray-400'}`}>Unit: {item.weight}</p>
                                                     <p className={`text-[11px] font-medium transition-colors ${item.selected ? 'text-[#1a73e8]' : 'text-gray-400'}`}>Total Weight: {parseFloat(item.weight) * item.quantity} Kg</p>
@@ -80,14 +80,14 @@ export default function Cart() {
                                     <div className="flex flex-col w-full md:w-[15%]">
                                         <span className="font-bold text-[15px] text-gray-900 mb-2 md:mb-3">Quantity</span>
                                         <div className="flex items-center gap-3">
-                                            <button 
+                                            <button
                                                 onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                                                 className="text-gray-400 hover:text-gray-700 hover:border-gray-400 border border-gray-300 rounded-full w-6 h-6 flex items-center justify-center transition-colors"
                                             >
                                                 <Minus size={12} />
                                             </button>
                                             <span className="font-semibold text-sm text-gray-800 w-4 text-center">{item.quantity}</span>
-                                            <button 
+                                            <button
                                                 onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
                                                 className="text-gray-400 hover:text-gray-700 hover:border-gray-400 border border-gray-300 rounded-full w-6 h-6 flex items-center justify-center transition-colors"
                                             >
@@ -105,14 +105,14 @@ export default function Cart() {
                                     {/* Action */}
                                     <div className="flex flex-col w-full md:w-[15%] items-start">
                                         <span className="font-bold text-[15px] text-gray-900 mb-2 md:mb-3">Action</span>
-                                        <button 
+                                        <button
                                             onClick={() => removeFromCart(item.cartItemId)}
                                             className="text-red-500 hover:text-red-700 flex items-center gap-1.5 text-sm font-medium transition-colors"
                                         >
                                             <Trash2 size={14} /> Remove
                                         </button>
                                     </div>
-                                    
+
                                 </div>
                             ))
                         )}
@@ -122,21 +122,21 @@ export default function Cart() {
                     <div className="lg:w-1/3">
                         <div className="border border-gray-200 rounded-lg p-6 lg:p-8 sticky top-10">
                             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 tracking-tight">Cart Total</h2>
-                            
+
                             {/* Coupon Code section */}
                             <div className="mb-8">
                                 <h4 className="text-[13px] font-medium text-gray-500 mb-3">Coupon Apply</h4>
                                 <div className="flex items-center border border-gray-200 rounded-md overflow-hidden bg-gray-50/50 group focus-within:border-[#1a73e8] focus-within:ring-1 focus-within:ring-[#1a73e8] transition-all">
-                                    <input 
-                                        className="px-4 py-2.5 outline-none flex-1 text-[13px] bg-transparent text-gray-700 placeholder:text-gray-400 w-full" 
-                                        placeholder="Enter Coupon Code" 
+                                    <input
+                                        className="px-4 py-2.5 outline-none flex-1 text-[13px] bg-transparent text-gray-700 placeholder:text-gray-400 w-full"
+                                        placeholder="Enter Coupon Code"
                                     />
                                     <button className="px-5 py-2.5 text-[#1a73e8] text-[13px] font-semibold bg-[#e8f1fd] hover:bg-[#d4e6fc] transition-colors border-l border-gray-200 shrink-0">
                                         Apply
                                     </button>
                                 </div>
                             </div>
-                            
+
                             {/* Calculation Details */}
                             <div className="space-y-3 mb-6">
                                 <div className="flex justify-between items-center text-[15px] text-gray-600 font-medium">
@@ -163,7 +163,7 @@ export default function Cart() {
 
                             {/* Buttons */}
                             <div className="space-y-3">
-                                <button 
+                                <button
                                     onClick={() => navigate('/checkout')}
                                     className="w-full bg-[#1a73e8] hover:bg-blue-700 text-white py-3 rounded text-[15px] font-semibold shadow-sm transition-colors"
                                 >
@@ -179,7 +179,7 @@ export default function Cart() {
                 </div>
 
             </div>
-            
+
             <Footer />
         </div>
     );
