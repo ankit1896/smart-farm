@@ -82,32 +82,20 @@ export default function FarmerDashboard() {
                     <Sidebar />
                     <main className="flex-1 px-8 pb-8 min-w-0">
                         <header className="mb-10">
-                            <h1 className="text-[28px] font-black text-slate-900 tracking-tight flex items-center gap-2">
-                                My Dashboard <span className="text-blue-200">|</span>
-                                <span className="text-blue-600">
-                                    {(farmerInfo.farmer_name && farmerInfo.farmer_name.trim() !== "")
-                                        ? farmerInfo.farmer_name
-                                        : (user?.fullname || user?.displayName || user?.username || "Farmer")
-                                    }
-                                </span>
+                            <h1 className="text-[28px] font-black text-slate-900 tracking-tight">
+                                My Dashboard
                             </h1>
+
                         </header>
 
                         {/* Welcome section */}
                         <div className="mb-10">
                             <div className="mb-1">
-                                <p className="text-sm font-medium text-slate-500">
-                                    <span className="font-black text-slate-900">
-                                        {(farmerInfo.farmer_name && farmerInfo.farmer_name.trim() !== "")
-                                            ? farmerInfo.farmer_name
-                                            : (user?.fullname || user?.displayName || user?.username || "Farmer")
-                                        }
-                                    </span>
-                                </p>
                                 <p className="text-[11px] font-bold text-blue-600/70 tracking-tight">
                                     {farmerInfo.farm_name || "Smart Farm Partner"} • {user?.email || "No email available"}
                                 </p>
                             </div>
+
                             <p className="text-sm text-slate-500 leading-relaxed max-w-2xl mt-3">
                                 Welcome to your <span className="font-bold text-slate-700">{farmerInfo.farm_name || "farm"}</span> dashboard.
                                 Stay updated on your deliveries, manage your products, and track your revenue growth in real-time.

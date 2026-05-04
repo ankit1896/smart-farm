@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -10,12 +10,13 @@ from django.db.models import Sum, Count, F
 from django.db.models.functions import TruncDay
 from datetime import timedelta
 from django.utils import timezone
-from .models import Category, Farmer, Product, Order, OrderItem, Profile, Address
+from .models import Category, Farmer, Product, Order, OrderItem, Profile, Address, MarketPrice
 from .serializers import (
     CategorySerializer, FarmerSerializer, FarmerDetailSerializer, ProductSerializer, 
     RegisteSerializer, OrderSerializer, AddressSerializer, ProfileSerializer
 )
-from rest_framework import generics, permissions, status, viewsets
+from .services.mandi_service import MandiAIService
+from rest_framework import generics, permissions, status, viewsets, serializers
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
@@ -275,18 +276,37 @@ class FarmerOrderListView(APIView):
         
         return Response(orders_data)
 
-class FarmerProductListView(APIView):
+class FarmerProductListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ProductSerializer
 
-    def get(self, request):
+    def get_queryset(self):
         try:
-            farmer = Farmer.objects.get(user=request.user)
+            farmer = Farmer.objects.get(user=self.request.user)
+            return Product.objects.filter(farmer=farmer).select_related('category')
         except Farmer.DoesNotExist:
-            return Response({"error": "Farmer profile not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Product.objects.none()
 
-        products = Product.objects.filter(farmer=farmer).select_related('category')
-        serializer = ProductSerializer(products, many=True, context={'request': request})
-        return Response(serializer.data)
+    def perform_create(self, serializer):
+        try:
+            farmer = Farmer.objects.get(user=self.request.user)
+            # Handle image and category
+            category_id = self.request.data.get('category_id')
+            category = Category.objects.get(id=category_id) if category_id else None
+            serializer.save(farmer=farmer, category=category)
+        except Farmer.DoesNotExist:
+            raise serializers.ValidationError({"error": "Farmer profile not found"})
+
+class FarmerProductDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        try:
+            farmer = Farmer.objects.get(user=self.request.user)
+            return Product.objects.filter(farmer=farmer)
+        except Farmer.DoesNotExist:
+            return Product.objects.none()
 
 class FarmerProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -330,3 +350,99 @@ class FarmerProfileUpdateView(APIView):
             farmer.save()
 
         return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
+
+class MarketComparisonAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, product_id):
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        service = MandiAIService()
+        benchmark = service.get_market_benchmark(product)
+
+        if not benchmark:
+            return Response({"error": "No market data available for this commodity. Please click 'Sync' to refresh prices."}, status=status.HTTP_404_NOT_FOUND)
+
+        is_dairy = product.category.slug == 'dairy' if product.category else False
+        
+        # Robust access for both object and dict types
+        def get_v(b, key, default=0.0):
+            val = getattr(b, key) if hasattr(b, key) else b.get(key)
+            return default if val is None else val
+
+        modal = float(get_v(benchmark, 'modal_price', 0.0))
+        
+        return Response({
+            "product_name": product.name,
+            "current_price": float(product.price),
+            "market_data": {
+                "market_name": getattr(benchmark, 'market') if hasattr(benchmark, 'market') else benchmark.get('market', 'Unknown'),
+                "modal_price": modal,
+                "range": [float(get_v(benchmark, 'min_price', modal)), float(get_v(benchmark, 'max_price', modal))]
+            },
+            "suggestion": "Your price is within the optimal range." if abs(float(product.price) - modal) <= (modal * 0.15) else "Consider adjusting your price toward the market modal.",
+            "source": "Co-op Bulletin" if is_dairy else "Live Mandi Feed",
+            "is_dairy": is_dairy
+        })
+
+class SyncMarketPricesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        """
+        Triggers a refresh of market prices using MandiAIService.
+        """
+        try:
+            service = MandiAIService()
+            count = service.fetch_and_sync()
+            if count > 0:
+                return Response({
+                    "message": f"Successfully synced {count} market price records. Your dashboard is now up to date!"
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "message": "Market data synchronization completed, but no new records were found."
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "error": f"Synchronization failed: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CommodityListView(APIView):
+    """
+    Returns a unique list of commodities available in the MarketPrice database,
+    grouped by category for easier frontend filtering.
+    """
+    permission_classes = [permissions.AllowAny]
+    def get(self, request):
+        commodities = list(MarketPrice.objects.values_list('commodity', flat=True).distinct().order_by('commodity'))
+        
+        # Categorization logic
+        vegetables = ["ashgourd", "bitter", "bottle", "kundru", "parval", "ridge", "snake", "celery", "amaranthus", "chuka", "coriander", "curry", "methi", "mint", "pudina", "spinach", "chard", "beetroot", "carrot", "colacasia", "suran", "potato", "raddish", "sweet", "tapioca", "taro", "arvi", "beans", "cowpea", "guar", "sem", "soya", "bhindi", "brinjal", "baingan", "cabbage", "capsicum", "cauliflower", "drumstick", "garlic", "ginger", "chilli", "lemon", "mashrooms", "onion", "pumpkin", "tomato", "aloe", "bamboo", "brocoli", "jackfruit", "khol", "lotus", "tinda"]
+        fruits = ["apple", "banana", "mango", "orange", "papaya", "pomegranate", "grapes", "guava", "lime", "mousambi", "pear", "pineapple", "sapota", "melon"]
+        dairy = ["milk", "paneer", "ghee", "butter", "curd"]
+        
+        categorized = {
+            "vegetables": [],
+            "fruits": [],
+            "dairy": [],
+            "others": []
+        }
+        
+        for comm in commodities:
+            low = comm.lower()
+            if any(v in low for v in vegetables):
+                categorized["vegetables"].append(comm)
+            elif any(f in low for f in fruits):
+                categorized["fruits"].append(comm)
+            elif any(d in low for d in dairy):
+                categorized["dairy"].append(comm)
+            else:
+                categorized["others"].append(comm)
+                
+        return Response(categorized)

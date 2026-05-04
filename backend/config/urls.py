@@ -22,9 +22,10 @@ from farm.views import (
     ProductListView, ProductDetailView, FarmerListView, FarmerDetailView,
     CategoryListView, RegisterView, home, ProtectedView, 
     MyTokenObtainPairView, OrderListCreateView, OrderDetailView, AddressViewSet, UserProfileView,
-    GoogleLogin, FarmerDashboardView, FarmerOrderListView, FarmerProductListView,
-    FarmerProfileUpdateView
+    GoogleLogin, FarmerDashboardView, FarmerOrderListView, FarmerProductListView, FarmerProductDetailView,
+    FarmerProfileUpdateView, MarketComparisonAPIView, CommodityListView, SyncMarketPricesView
 )
+
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -50,8 +51,12 @@ urlpatterns = [
     path('api/farmer/dashboard/', FarmerDashboardView.as_view(), name='farmer-dashboard'),
     path('api/farmer/orders/', FarmerOrderListView.as_view(), name='farmer-orders'),
     path('api/farmer/products/', FarmerProductListView.as_view(), name='farmer-products'),
+    path('api/farmer/products/<int:pk>/', FarmerProductDetailView.as_view(), name='farmer-product-detail'),
     path('api/farmer/profile/update/', FarmerProfileUpdateView.as_view(), name='farmer-profile-update'),
+    path('api/market/compare/<int:product_id>/', MarketComparisonAPIView.as_view(), name='market-compare'),
+    path('api/market/sync/', SyncMarketPricesView.as_view(), name='market-sync'),
     path('api/dj-rest-auth/', include('dj_rest_auth.urls')),
+
     path('api/', include(router.urls)),
 ]
 

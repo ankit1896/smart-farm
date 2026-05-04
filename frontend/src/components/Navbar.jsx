@@ -6,10 +6,18 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [greetingName, setGreetingName] = useState("User");
     const { user, logout, isAuthenticated } = useAuth();
     const menuRef = useRef(null);
     const navigate = useNavigate();
     const { cartCount } = useCart();
+
+    const fallbackName =
+        user?.first_name?.trim() ||
+        user?.fullname?.trim() ||
+        user?.displayName?.trim() ||
+        user?.username?.trim() ||
+        (user?.email ? user.email.split("@")[0] : "User");
 
     const handleLogout = () => {
         logout();
@@ -26,6 +34,47 @@ export default function Navbar() {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setGreetingName("User");
+            return;
+        }
+
+        setGreetingName(fallbackName);
+
+        if (user?.selectedRole !== "farmer") {
+            return;
+        }
+
+        let ignore = false;
+
+        fetch("http://localhost:8000/api/farmer/dashboard/", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (ignore) return;
+
+                const farmerName =
+                    data?.farmer_profile?.farmer_name?.trim() ||
+                    data?.farmer_name?.trim() ||
+                    fallbackName;
+
+                setGreetingName(farmerName);
+            })
+            .catch(() => {
+                if (!ignore) {
+                    setGreetingName(fallbackName);
+                }
+            });
+
+        return () => {
+            ignore = true;
+        };
+    }, [fallbackName, isAuthenticated, user?.selectedRole]);
 
     return (
         <nav className="bg-white w-full border-b border-gray-100 shadow-sm font-sans">
@@ -96,12 +145,12 @@ export default function Navbar() {
                                     }
                                 }}
                                 className="flex hover:text-green-600 transition transform hover:scale-105"
-                                title={isAuthenticated ? `Hi, ${user?.displayName}` : "Login"}
+                                title={isAuthenticated ? `Hi, ${greetingName}` : "Login"}
                             >
                                 <div className="flex items-center gap-2">
                                     {isAuthenticated && (
                                         <span className="text-sm font-bold text-gray-700">
-                                            Hi, {user?.displayName}
+                                            Hi, {greetingName}
                                         </span>
                                     )}
                                     <User size={26} strokeWidth={1.5} />
@@ -112,7 +161,7 @@ export default function Navbar() {
                             {isAuthenticated && isProfileOpen && (
                                 <div className="absolute right-0 mt-3 w-[200px] bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden font-sans">
                                     <div className="py-3 px-4 border-b border-gray-50 bg-green-50/50">
-                                        <p className="text-sm font-bold text-gray-800 truncate">Hi, {user?.displayName}</p>
+                                        <p className="text-sm font-bold text-gray-800 truncate">Hi, {greetingName}</p>
                                         <p className="text-xs text-gray-500 mt-0.5">Welcome back!</p>
                                     </div>
                                     <div className="py-1">
